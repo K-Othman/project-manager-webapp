@@ -15,6 +15,7 @@ const dotenv = require('dotenv');
 
 const healthRoutes = require('./routes/healthRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const authRoutes = require('./routes/authRoutes'); 
 
 dotenv.config();
 
@@ -45,7 +46,7 @@ app.use(morgan('dev'));
 app.use('/api', healthRoutes);
 
 // TODO: Later I will mount:
-// app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 // app.use('/api/projects', projectRoutes);
 
 // --------------------- Error Handling --------------------------
