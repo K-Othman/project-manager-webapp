@@ -21,9 +21,7 @@ function Navbar() {
 
     {/* Right-side navigation */}
     <div className="
-      flex flex-wrap items-center text-sm
-      divide-x divide-gray-200      /* vertical lines between items */
-    ">
+      flex flex-wrap items-center text-sm divide-x divide-gray-200">
       {/* Projects */}
       <Link
         to="/"

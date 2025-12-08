@@ -12,14 +12,16 @@ function Footer() {
 
   return (
     <footer className="bg-gray-100 border-t mt-10">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-
+      <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between text-sm text-gray-600">
         {/* Left section: branding */}
-        <p className="mb-2 md:mb-0">
+        <p>
           © {currentYear} ProjectManager. All rights reserved.
         </p>
 
-        <p>Made With Love By Karim</p>
+        {/* Middle: author credit */}
+        <p className="text-xs text-gray-500 md:text-right">
+          Designed &amp; built by Karim
+        </p>
 
         {/* Right section: quick navigation */}
         <div className="flex gap-4">
