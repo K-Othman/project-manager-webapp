@@ -48,12 +48,12 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="hover:text-blue-600">
+              <Link to="/login" className="hover:text-blue-00">
                 Login
               </Link>
               <Link
                 to="/register"
-                className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="btn-primary w-full hover:text-white"
               >
                 Register
               </Link>

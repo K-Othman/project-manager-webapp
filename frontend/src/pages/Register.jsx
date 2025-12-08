@@ -85,7 +85,7 @@ function Register() {
 
         <button
           type="submit"
-          className="w-full bg-green-600 text-white rounded py-2 text-sm font-medium hover:bg-green-700 transition"
+          className="btn-primary w-full"
         >
           Register
         </button>

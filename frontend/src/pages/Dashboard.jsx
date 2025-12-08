@@ -88,7 +88,7 @@ function Dashboard() {
                 </Link>
                 <Link
                   to={`/projects/${p.pid}/edit`}
-                  className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+                  className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
                 >
                   Edit
                 </Link>

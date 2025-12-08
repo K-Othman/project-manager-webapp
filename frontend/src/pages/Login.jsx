@@ -35,48 +35,46 @@ function Login() {
 }
 
   return (
-    <div className="flex justify-center items-center min-h-[70vh] p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white rounded-lg shadow p-6 space-y-4"
-      >
-        <h1 className="text-xl font-semibold text-center">Login</h1>
+    <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="card-padded w-full max-w-md">
+        <h1 className="text-xl font-semibold mb-2 text-center">Login</h1>
+        <p className="text-muted text-center mb-4">
+          Sign in to manage your projects.
+        </p>
 
-        {/* Error message */}
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+          <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
             {error}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm mb-1">Username or Email</label>
-          <input
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-            value={usernameOrEmail}
-            onChange={(e) => setUsernameOrEmail(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="form-label">Username or Email</label>
+            <input
+              className="form-input"
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm mb-1">Password</label>
-          <input
-            type="password"
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white rounded py-2 text-sm font-medium hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
-      </form>
+          <button type="submit" className="btn-primary w-full">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

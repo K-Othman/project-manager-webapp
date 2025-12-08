@@ -73,18 +73,23 @@ function Home() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">All Projects</h1>
+     <div className="page-container">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <h1 className="page-title">All Projects</h1>
+        <p className="text-muted">
+          Browse all projects or filter by title and start date.
+        </p>
+      </div>
 
-      {/* Search / filter form */}
+      {/* Search card */}
       <form
         onSubmit={handleSearch}
-        className="mb-4 bg-white border rounded-lg shadow-sm p-4 grid grid-cols-1 md:grid-cols-[2fr_2fr_auto] gap-3 items-end"
+        className="card-padded mb-4 grid grid-cols-1 md:grid-cols-[2fr_2fr_auto] gap-3 items-end"
       >
         <div>
-          <label className="block text-sm mb-1">Title</label>
+          <label className="form-label">Title</label>
           <input
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-input"
             value={titleFilter}
             onChange={(e) => setTitleFilter(e.target.value)}
             placeholder="Search by title..."
@@ -92,56 +97,63 @@ function Home() {
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Start date</label>
+          <label className="form-label">Start date</label>
           <input
             type="date"
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-input"
             value={startDateFilter}
             onChange={(e) => setStartDateFilter(e.target.value)}
           />
         </div>
 
         <div className="flex gap-2">
-          <button
-            type="submit"
-            className="flex-1 bg-blue-600 text-white rounded py-2 text-sm font-medium hover:bg-blue-700"
-          >
+          <button type="submit" className="btn-primary flex-1">
             Search
           </button>
           <button
             type="button"
             onClick={handleClear}
-            className="flex-1 border rounded py-2 text-sm hover:bg-gray-50"
+            className="btn-secondary flex-1"
           >
             Clear
           </button>
         </div>
       </form>
 
-      {/* Results list */}
+      {/* Projects grid */}
       {loading ? (
-        <div>Loading projects...</div>
+        <div className="card-padded">
+          <p className="text-muted">Loading projects...</p>
+        </div>
       ) : projects.length === 0 ? (
-        <p>No projects found.</p>
+        <div className="card-padded">
+          <p>No projects found.</p>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {projects.map((project) => (
             <Link
               to={`/project/${project.pid}`}
               key={project.pid}
-              className="border rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition block"
+              className="card-padded hover:shadow-md transition block"
             >
-              <h2 className="font-semibold text-lg mb-1">
-                {project.title}
-              </h2>
+              <div className="flex justify-between items-start gap-2 mb-2">
+                <h2 className="text-lg font-semibold">{project.title}</h2>
+                <span className="badge-pill">
+                  {project.phase}
+                </span>
+              </div>
+
               <p className="text-sm text-gray-500 mb-1">
                 Start date: {project.start_date}
               </p>
+
               <p className="text-sm text-gray-700 mb-2">
                 {project.short_description}
               </p>
+
               <p className="text-xs text-gray-400">
-                Phase: {project.phase} · Owner: {project.username}
+                Owner: {project.username}
               </p>
             </Link>
           ))}

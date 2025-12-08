@@ -175,8 +175,8 @@ function EditProject() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-green-600 text-white rounded py-2 text-sm font-medium hover:bg-green-700 disabled:opacity-60"
-        >
+          // className="w-full bg-green-600 text-white rounded py-2 text-sm font-medium hover:bg-green-700 disabled:opacity-60"
+          className="btn-primary w-full"        >
           {saving ? "Saving..." : "Update Project"}
         </button>
       </form>
