@@ -86,7 +86,7 @@ async function register(req, res, next) {
     );
     const newUser = rows[0];
 
-    // Generate a JWT for immediate login after registration (optional but user-friendly)
+    // Generate a JWT for immediate login after registration
     const token = generateToken(newUser);
 
     res.status(201).json({

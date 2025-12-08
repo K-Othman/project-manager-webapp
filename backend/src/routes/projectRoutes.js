@@ -63,7 +63,6 @@ router.get('/:id', getProjectById);
 
 // Search projects by title and/or start_date
 router.get('/search/query', searchProjects);
-// Note: using '/search/query' to avoid conflict with '/:id'
 
 // -------------------- Protected routes --------------------
 
