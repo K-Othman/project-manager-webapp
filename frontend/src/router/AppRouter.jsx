@@ -14,6 +14,7 @@ import Dashboard from "../pages/Dashboard";
 import NewProject from "../pages/NewProject";
 import EditProject from "../pages/EditProject";
 import ProjectDetails from "../pages/ProjectDetails";
+import Footer from "../components/Footer";
 
 // -----------------------------------------------------------
 // ProtectedRoute
@@ -82,6 +83,7 @@ function AppRouter() {
           <Route path="*" element={<div className="p-4">Page not found</div>} />
         </Routes>
       </main>
+      <Footer />
     </BrowserRouter>
   );
 }
