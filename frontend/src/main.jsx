@@ -1,3 +1,10 @@
+// -------------------------------------------------------------
+// Application entry point.
+// - Mounts the React app into the DOM
+// - Wraps the app with AuthProvider
+// - Imports global Tailwind-enabled stylesheet
+// -------------------------------------------------------------
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";

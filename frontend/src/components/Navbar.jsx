@@ -1,3 +1,9 @@
+// -------------------------------------------------------------
+// Top navigation bar displayed on all pages.
+// - Shows different links depending on authentication state
+// - Provides quick access to Projects, Dashboard, Login/Register
+// -------------------------------------------------------------
+
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,10 +13,12 @@ function Navbar() {
   return (
     <nav className="bg-white border-b shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Brand / Home link */}
         <Link to="/" className="font-semibold text-lg">
           ProjectManager
         </Link>
 
+        {/* Right-side navigation */}
         <div className="flex items-center gap-4 text-sm">
           <Link to="/" className="hover:text-blue-600">
             Projects
@@ -24,9 +32,13 @@ function Navbar() {
               <Link to="/projects/new" className="hover:text-blue-600">
                 New Project
               </Link>
+
+              {/* Show logged-in username */}
               <span className="text-gray-500">
                 {user?.username}
               </span>
+
+              {/* Logout button */}
               <button
                 onClick={logout}
                 className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"

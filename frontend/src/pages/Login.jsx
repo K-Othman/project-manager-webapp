@@ -1,3 +1,10 @@
+// -------------------------------------------------------------
+// Public login page.
+// - Uses AuthContext to perform login
+// - On success, redirects user to the dashboard
+// - Displays error messages returned from backend
+// -------------------------------------------------------------
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -5,23 +12,29 @@ import { useAuth } from "../context/AuthContext";
 function Login() {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // -----------------------------------------------------------
+  // Submit login form
+  // -----------------------------------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
     try {
       const res = await login(usernameOrEmail, password);
+
       if (!res.success) {
         setError(res.message || "Login failed.");
       } else {
         navigate("/dashboard");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
       setError("An error occurred during login.");
     }
   }
@@ -34,6 +47,7 @@ function Login() {
       >
         <h1 className="text-xl font-semibold text-center">Login</h1>
 
+        {/* Error message */}
         {error && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
             {error}

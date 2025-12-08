@@ -1,11 +1,14 @@
-/**
- * AuthContext
- *
- * Provides authentication state and helpers to the entire app.
- * - Stores user and token
- * - Persists token in localStorage
- * - Exposes login, logout, and register functions
- */
+// -------------------------------------------------------------
+// React Context for managing authentication state.
+// Responsibilities:
+//  - Stores user information and JWT token
+//  - Persists auth data in localStorage
+//  - Exposes login, register, and logout helpers
+//
+// Security:
+//  - Token stored in localStorage for simplicity (acceptable for this project)
+//  - Authorization header is attached by axios interceptor
+// -------------------------------------------------------------
 
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
@@ -13,11 +16,13 @@ import api from "../api/axios";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);      
-  const [token, setToken] = useState(null);    
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);     // Authenticated user object
+  const [token, setToken] = useState(null);   // JWT token
+  const [loading, setLoading] = useState(true); // Initial loading state
 
-  // Load stored token on first render
+  // -----------------------------------------------------------
+  // Load any existing user + token from localStorage on mount
+  // -----------------------------------------------------------
   useEffect(() => {
     const storedToken = localStorage.getItem("auth_token");
     const storedUser = localStorage.getItem("auth_user");
@@ -27,6 +32,7 @@ export function AuthProvider({ children }) {
       try {
         setUser(JSON.parse(storedUser));
       } catch {
+        // If parsing fails, clear invalid data
         setUser(null);
       }
     }
@@ -34,10 +40,13 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  /**
-   * Handle login using API.
-   * Expects backend response: { success, user, token }
-   */
+  // -----------------------------------------------------------
+  // Login handler
+  //
+  // Calls backend /api/auth/login and, on success:
+  //  - Stores user and token in state
+  //  - Persists them in localStorage
+  // -----------------------------------------------------------
   async function login(usernameOrEmail, password) {
     const response = await api.post("/auth/login", {
       usernameOrEmail,
@@ -55,9 +64,11 @@ export function AuthProvider({ children }) {
     return response.data;
   }
 
-  /**
-   * Handle registration using API.
-   */
+  // -----------------------------------------------------------
+  // Register handler
+  //
+  // Calls backend /api/auth/register and auto-logs in on success.
+  // -----------------------------------------------------------
   async function register(username, email, password) {
     const response = await api.post("/auth/register", {
       username,
@@ -76,9 +87,11 @@ export function AuthProvider({ children }) {
     return response.data;
   }
 
-  /**
-   * Clear user session.
-   */
+  // -----------------------------------------------------------
+  // Logout handler
+  //
+  // Clears auth state and removes localStorage entries.
+  // -----------------------------------------------------------
   function logout() {
     setUser(null);
     setToken(null);
@@ -99,6 +112,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// Custom hook for easier consumption in components
 export function useAuth() {
   return useContext(AuthContext);
 }
