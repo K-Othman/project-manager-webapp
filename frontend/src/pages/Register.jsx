@@ -22,22 +22,17 @@ function Register() {
   // Submit registration form
   // -----------------------------------------------------------
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      const res = await register(username, email, password);
+  const res = await register(username, email, password);
 
-      if (!res.success) {
-        setError(res.message || "Registration failed.");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      console.error("Registration error:", err);
-      setError("An error occurred during registration.");
-    }
+  if (!res.success) {
+    setError(res.message || "Registration failed.");
+  } else {
+    navigate("/dashboard");
   }
+}
 
   return (
     <div className="flex justify-center items-center min-h-[70vh] p-4">

@@ -48,6 +48,7 @@ export function AuthProvider({ children }) {
   //  - Persists them in localStorage
   // -----------------------------------------------------------
   async function login(usernameOrEmail, password) {
+  try {
     const response = await api.post("/auth/login", {
       usernameOrEmail,
       password,
@@ -62,7 +63,20 @@ export function AuthProvider({ children }) {
     }
 
     return response.data;
+  } catch (err) {
+    console.error("Login error:", err);
+
+    // If backend sent a structured error, reuse it
+    if (err.response?.data) {
+      return err.response.data;
+    }
+
+    return {
+      success: false,
+      message: "Unable to login. Please try again.",
+    };
   }
+}
 
   // -----------------------------------------------------------
   // Register handler
@@ -70,6 +84,7 @@ export function AuthProvider({ children }) {
   // Calls backend /api/auth/register and auto-logs in on success.
   // -----------------------------------------------------------
   async function register(username, email, password) {
+  try {
     const response = await api.post("/auth/register", {
       username,
       email,
@@ -85,7 +100,19 @@ export function AuthProvider({ children }) {
     }
 
     return response.data;
+  } catch (err) {
+    console.error("Registration error:", err);
+
+    if (err.response?.data) {
+      return err.response.data;
+    }
+
+    return {
+      success: false,
+      message: "Unable to register. Please try again.",
+    };
   }
+}
 
   // -----------------------------------------------------------
   // Logout handler

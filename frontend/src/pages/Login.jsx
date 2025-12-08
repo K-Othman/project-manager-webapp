@@ -22,22 +22,17 @@ function Login() {
   // Submit login form
   // -----------------------------------------------------------
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      const res = await login(usernameOrEmail, password);
+  const res = await login(usernameOrEmail, password);
 
-      if (!res.success) {
-        setError(res.message || "Login failed.");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("An error occurred during login.");
-    }
+  if (!res.success) {
+    setError(res.message || "Login failed.");
+  } else {
+    navigate("/dashboard");
   }
+}
 
   return (
     <div className="flex justify-center items-center min-h-[70vh] p-4">
