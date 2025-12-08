@@ -1,6 +1,4 @@
 // -------------------------------------------------------------
-// pages/ProjectDetails.jsx
-//
 // Public page that displays full information about a single 
 // project, including owner email (required by the brief).
 //

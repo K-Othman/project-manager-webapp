@@ -15,6 +15,7 @@ import NewProject from "../pages/NewProject";
 import EditProject from "../pages/EditProject";
 import ProjectDetails from "../pages/ProjectDetails";
 import Footer from "../components/Footer";
+import NotFound from "../pages/NotFound";
 
 // -----------------------------------------------------------
 // ProtectedRoute
@@ -50,6 +51,8 @@ function AppRouter() {
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="*" element={<NotFound />} />
+
 
           {/* Protected routes */}
           <Route
