@@ -1,16 +1,16 @@
 // -------------------------------------------------------------
-// Protected page used to create a new project for the
-// authenticated user.
-//
-// Features:
-//  - Validates input on client side (min lengths, required fields)
-//  - Calls POST /api/projects
-//  - Redirects to dashboard on success
+// Protected page to create a new project.
+// Minimal validation:
+//  - Title required
+//  - Start date required
+//  - Short description required
+// Shows simple error / success messages.
 // -------------------------------------------------------------
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import Alert from "../components/Alert";
 
 function NewProject() {
   const [title, setTitle]                 = useState("");
@@ -18,32 +18,56 @@ function NewProject() {
   const [endDate, setEndDate]             = useState("");
   const [shortDescription, setShortDesc]  = useState("");
   const [phase, setPhase]                 = useState("design");
-  const [error, setError]                 = useState("");
-  const [saving, setSaving]               = useState(false);
+
+  const [error, setError]             = useState("");
+  const [success, setSuccess]         = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [saving, setSaving]           = useState(false);
 
   const navigate = useNavigate();
 
-  // -----------------------------------------------------------
-  // Submit handler for creating a new project
-  // -----------------------------------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setFieldErrors({});
     setSaving(true);
+
+    const newErrors = {};
+
+    if (!title.trim()) {
+      newErrors.title = "Title is required.";
+    }
+
+    if (!startDate) {
+      newErrors.startDate = "Start date is required.";
+    }
+
+    if (!shortDescription.trim()) {
+      newErrors.shortDescription = "Short description is required.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      setError("Please fix the highlighted fields.");
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await api.post("/projects", {
-        title,
+        title: title.trim(),
         start_date: startDate,
         end_date: endDate || null,
-        short_description: shortDescription,
+        short_description: shortDescription.trim(),
         phase,
       });
 
       if (!res.data.success) {
         setError(res.data.message || "Failed to create project.");
       } else {
-        navigate("/dashboard");
+        setSuccess("Project created successfully. Redirecting...");
+        setTimeout(() => navigate("/dashboard"), 800);
       }
     } catch (err) {
       console.error("Error creating project:", err);
@@ -54,49 +78,50 @@ function NewProject() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">New Project</h1>
+    <div className="page-container">
+      <h1 className="page-title">New Project</h1>
 
-      {/* Error message */}
-      {error && (
-        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-          {error}
-        </div>
-      )}
+      {error && <Alert type="error">{error}</Alert>}
+      {success && <Alert type="success">{success}</Alert>}
 
-      {/* Project creation form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white border rounded-lg shadow-sm p-4 space-y-4"
+        className="card-padded space-y-4"
       >
         <div>
-          <label className="block text-sm mb-1">Title</label>
+          <label className="form-label">Title</label>
           <input
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            required
-            minLength={3}
-            maxLength={150}
           />
+          {fieldErrors.title && (
+            <p className="text-xs text-red-600 mt-1">
+              {fieldErrors.title}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Start date</label>
+            <label className="form-label">Start date</label>
             <input
               type="date"
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+              className="form-input"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              required
             />
+            {fieldErrors.startDate && (
+              <p className="text-xs text-red-600 mt-1">
+                {fieldErrors.startDate}
+              </p>
+            )}
           </div>
           <div>
-            <label className="block text-sm mb-1">End date (optional)</label>
+            <label className="form-label">End date (optional)</label>
             <input
               type="date"
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+              className="form-input"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
@@ -104,22 +129,24 @@ function NewProject() {
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Short description</label>
+          <label className="form-label">Short description</label>
           <textarea
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-textarea"
             rows={3}
             value={shortDescription}
             onChange={(e) => setShortDesc(e.target.value)}
-            required
-            minLength={10}
-            maxLength={255}
           />
+          {fieldErrors.shortDescription && (
+            <p className="text-xs text-red-600 mt-1">
+              {fieldErrors.shortDescription}
+            </p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Phase</label>
+          <label className="form-label">Phase</label>
           <select
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-select"
             value={phase}
             onChange={(e) => setPhase(e.target.value)}
           >
@@ -134,7 +161,7 @@ function NewProject() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-blue-600 text-white rounded py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+          className="btn-primary w-full disabled:opacity-60"
         >
           {saving ? "Saving..." : "Create Project"}
         </button>

@@ -1,13 +1,15 @@
 // -------------------------------------------------------------
-// Protected page used to edit an existing project.
-// - Loads project by ID on mount
-// - Submits updates via PUT /api/projects/:id
-// - Backend enforces ownership (only owner can update)
+// Protected page to edit an existing project.
+// Minimal validation, same as NewProject:
+//  - Title required
+//  - Start date required
+//  - Short description required
 // -------------------------------------------------------------
 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
+import Alert from "../components/Alert";
 
 function EditProject() {
   const { id } = useParams();
@@ -19,13 +21,13 @@ function EditProject() {
   const [shortDescription, setShortDesc]  = useState("");
   const [phase, setPhase]                 = useState("design");
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState("");
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [error, setError]           = useState("");
+  const [success, setSuccess]       = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // -----------------------------------------------------------
-  // Load existing project data when the page mounts
-  // -----------------------------------------------------------
+  // Load current project data
   useEffect(() => {
     async function fetchProject() {
       try {
@@ -52,32 +54,52 @@ function EditProject() {
     fetchProject();
   }, [id]);
 
-  // -----------------------------------------------------------
-  // Submit handler for updating the project
-  // -----------------------------------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setFieldErrors({});
     setSaving(true);
+
+    const newErrors = {};
+
+    if (!title.trim()) {
+      newErrors.title = "Title is required.";
+    }
+
+    if (!startDate) {
+      newErrors.startDate = "Start date is required.";
+    }
+
+    if (!shortDescription.trim()) {
+      newErrors.shortDescription = "Short description is required.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      setError("Please fix the highlighted fields.");
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await api.put(`/projects/${id}`, {
-        title,
+        title: title.trim(),
         start_date: startDate,
         end_date: endDate || null,
-        short_description: shortDescription,
+        short_description: shortDescription.trim(),
         phase,
       });
 
       if (!res.data.success) {
         setError(res.data.message || "Failed to update project.");
       } else {
-        navigate("/dashboard");
+        setSuccess("Project updated successfully. Redirecting...");
+        setTimeout(() => navigate("/dashboard"), 800);
       }
     } catch (err) {
       console.error("Error updating project:", err);
 
-      // If backend returns 403, user is not authorised
       if (err.response?.status === 403) {
         setError("You are not authorised to edit this project.");
       } else if (err.response?.data?.message) {
@@ -91,53 +113,60 @@ function EditProject() {
   }
 
   if (loading) {
-    return <div className="p-4">Loading project...</div>;
+    return (
+      <div className="page-container">
+        <div className="card-padded">
+          <p className="text-muted">Loading project...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Project</h1>
+    <div className="page-container">
+      <h1 className="page-title">Edit Project</h1>
 
-      {/* Error message */}
-      {error && (
-        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-          {error}
-        </div>
-      )}
+      {error && <Alert type="error">{error}</Alert>}
+      {success && <Alert type="success">{success}</Alert>}
 
-      {/* Edit form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white border rounded-lg shadow-sm p-4 space-y-4"
+        className="card-padded space-y-4"
       >
         <div>
-          <label className="block text-sm mb-1">Title</label>
+          <label className="form-label">Title</label>
           <input
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            required
-            minLength={3}
-            maxLength={150}
           />
+          {fieldErrors.title && (
+            <p className="text-xs text-red-600 mt-1">
+              {fieldErrors.title}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Start date</label>
+            <label className="form-label">Start date</label>
             <input
               type="date"
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+              className="form-input"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              required
             />
+            {fieldErrors.startDate && (
+              <p className="text-xs text-red-600 mt-1">
+                {fieldErrors.startDate}
+              </p>
+            )}
           </div>
           <div>
-            <label className="block text-sm mb-1">End date (optional)</label>
+            <label className="form-label">End date (optional)</label>
             <input
               type="date"
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+              className="form-input"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
@@ -145,22 +174,24 @@ function EditProject() {
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Short description</label>
+          <label className="form-label">Short description</label>
           <textarea
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-textarea"
             rows={3}
             value={shortDescription}
             onChange={(e) => setShortDesc(e.target.value)}
-            required
-            minLength={10}
-            maxLength={255}
           />
+          {fieldErrors.shortDescription && (
+            <p className="text-xs text-red-600 mt-1">
+              {fieldErrors.shortDescription}
+            </p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Phase</label>
+          <label className="form-label">Phase</label>
           <select
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            className="form-select"
             value={phase}
             onChange={(e) => setPhase(e.target.value)}
           >
@@ -175,8 +206,8 @@ function EditProject() {
         <button
           type="submit"
           disabled={saving}
-          // className="w-full bg-green-600 text-white rounded py-2 text-sm font-medium hover:bg-green-700 disabled:opacity-60"
-          className="btn-primary w-full"        >
+          className="btn-primary w-full disabled:opacity-60"
+        >
           {saving ? "Saving..." : "Update Project"}
         </button>
       </form>

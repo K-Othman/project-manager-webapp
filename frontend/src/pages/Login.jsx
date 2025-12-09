@@ -1,38 +1,45 @@
 // -------------------------------------------------------------
-// Public login page.
-// - Uses AuthContext to perform login
-// - On success, redirects user to the dashboard
-// - Displays error messages returned from backend
+// Public login page with minimal client-side validation:
+//  - Username/email is required
+//  - Password is required
+// Shows simple error / success messages using <Alert />.
 // -------------------------------------------------------------
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Alert from "../components/Alert";
 
 function Login() {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // -----------------------------------------------------------
-  // Submit login form
-  // -----------------------------------------------------------
   async function handleSubmit(e) {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-  const res = await login(usernameOrEmail, password);
+    // Minimal client-side validation
+    if (!usernameOrEmail.trim() || !password.trim()) {
+      setError("Please enter both your username/email and password.");
+      return;
+    }
 
-  if (!res.success) {
-    setError(res.message || "Login failed.");
-  } else {
-    navigate("/dashboard");
+    const res = await login(usernameOrEmail.trim(), password);
+
+    if (!res.success) {
+      setError(res.message || "Login failed.");
+    } else {
+      setSuccess("Logged in successfully.");
+      setTimeout(() => navigate("/dashboard"), 800);
+    }
   }
-}
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
@@ -42,11 +49,8 @@ function Login() {
           Sign in to manage your projects.
         </p>
 
-        {error && (
-          <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="error">{error}</Alert>}
+        {success && <Alert type="success">{success}</Alert>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -55,7 +59,6 @@ function Login() {
               className="form-input"
               value={usernameOrEmail}
               onChange={(e) => setUsernameOrEmail(e.target.value)}
-              required
             />
           </div>
 
@@ -66,7 +69,6 @@ function Login() {
               className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 
