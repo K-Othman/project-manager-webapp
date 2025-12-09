@@ -22,6 +22,8 @@ function Alert({ type = "info", children }) {
     info: "ℹ",
   }[type];
 
+
+
   return (
     <div className={`${base} ${variants[type] || variants.info}`}>
       <span className="mt-[1px]">{icon}</span>

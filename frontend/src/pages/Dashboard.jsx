@@ -12,15 +12,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axios";
+import Alert from "../components/Alert";
 
 function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState("");
 
-  // -----------------------------------------------------------
+  const [toast, setToast] = useState("");
+  const [toastType, setToastType] = useState("success");
+
+  // Which project is in "confirm delete?" state
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   // Load current user's projects when the page mounts
-  // -----------------------------------------------------------
   useEffect(() => {
     async function fetchMyProjects() {
       try {
@@ -42,6 +47,29 @@ function Dashboard() {
     fetchMyProjects();
   }, []);
 
+  async function handleDelete(pid) {
+    try {
+      const res = await api.delete(`/projects/${pid}`);
+
+      if (res.data.success) {
+        // Remove the deleted item locally
+        setProjects((prev) => prev.filter((p) => p.pid !== pid));
+
+        setToast("Project deleted successfully.");
+        setToastType("success");
+      } else {
+        setToast(res.data.message || "Failed to delete project.");
+        setToastType("error");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      setToast("Error deleting project.");
+      setToastType("error");
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  }
+
   return (
     <div className="page-container">
       {/* Header area */}
@@ -60,6 +88,9 @@ function Dashboard() {
           + New Project
         </Link>
       </div>
+
+      {/* Toast message (non-blocking) */}
+      {toast && <Alert type={toastType}>{toast}</Alert>}
 
       {/* Error message, if any */}
       {error && (
@@ -114,6 +145,30 @@ function Dashboard() {
                 >
                   Edit
                 </Link>
+
+                {confirmDeleteId === p.pid ? (
+                  <>
+                    <button
+                      onClick={() => handleDelete(p.pid)}
+                      className="btn-danger"
+                    >
+                      Confirm delete
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDeleteId(p.pid)}
+                    className="btn-danger"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}
