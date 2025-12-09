@@ -8,6 +8,7 @@
  *  - GET    /api/projects/mine       (private, my projects)
  *  - POST   /api/projects            (private, create)
  *  - PUT    /api/projects/:id        (private, update if owner)
+ *  - DELETE /projects/:id
  */
 
 const express = require('express');
@@ -22,6 +23,7 @@ const {
 } = require('../controllers/projectController');
 
 const { requireAuth } = require('../middleware/authMiddleware');
+const { pool } = require("../config/db");
 
 const router = express.Router();
 
@@ -74,5 +76,50 @@ router.post('/', requireAuth, projectValidation, createProject);
 
 // Update an existing project (owner only)
 router.put('/:id', requireAuth, projectValidation, updateProject);
+
+// Deletes a project if the authenticated user owns it
+// -------------------------------------------------------------
+router.delete("/:id", requireAuth, async (req, res) => {
+  const pid = req.params.id;
+  const uid = req.user.uid; // set by requireAuth
+
+  try {
+    // Check project exists and belongs to user
+    const [rows] = await pool.query(
+      "SELECT uid FROM projects WHERE pid = ?",
+      [pid]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    if (rows[0].uid !== uid) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorised to delete this project.",
+      });
+    }
+
+    // Delete the project
+    await pool.query("DELETE FROM projects WHERE pid = ?", [pid]);
+
+    return res.json({
+      success: true,
+      message: "Project deleted successfully.",
+    });
+  } catch (err) {
+    console.error("Delete project error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while deleting project.",
+    });
+  }
+});
+
+
 
 module.exports = router;
