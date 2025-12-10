@@ -1,36 +1,40 @@
 // -------------------------------------------------------------
-// Public page that displays full information about a single 
-// project, including owner email (required by the brief).
+// Public page that displays full information about a single
+// project, including:
+//  - Title
+//  - Start & end date
+//  - Phase
+//  - Owner email (required by brief)
+//  - Short description
 //
-// Notes:
-//  - Read-only view, safe for public access
-//  - Authenticated users can still edit via Dashboard/Edit page
+// Handles:
+//  - Loading state
+//  - Error state
+//  - "Project not found" state
 // -------------------------------------------------------------
 
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../api/axios";
+import Alert from "../components/Alert";
 
 function ProjectDetails() {
-  // Extract project ID from the URL
   const { id } = useParams();
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  // -----------------------------------------------------------
-  // Fetch project details when component mounts or ID changes
-  // -----------------------------------------------------------
+  // Fetch project details when component mounts / id changes
   useEffect(() => {
     async function loadProject() {
       try {
-        const response = await api.get(`/projects/${id}`);
+        const res = await api.get(`/projects/${id}`);
 
-        if (response.data.success) {
-          setProject(response.data.project);
+        if (res.data.success) {
+          setProject(res.data.project);
         } else {
-          setError(response.data.message || "Failed to load project.");
+          setError(res.data.message || "Failed to load project.");
         }
       } catch (err) {
         console.error("Error fetching project:", err);
@@ -43,9 +47,7 @@ function ProjectDetails() {
     loadProject();
   }, [id]);
 
-  // -----------------------------------------------------------
-  // Render: loading / error / not found states
-  // -----------------------------------------------------------
+  // Loading state
   if (loading) {
     return (
       <div className="page-container">
@@ -56,47 +58,49 @@ function ProjectDetails() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="page-container">
-        <div className="card-padded border-red-200 bg-red-50 text-red-700">
-          <p className="text-sm">{error}</p>
-        </div>
+        <Alert type="error">{error}</Alert>
+        <Link to="/" className="btn-secondary">
+          Back to all projects
+        </Link>
       </div>
     );
   }
 
+  // Not found state (no error but no project)
   if (!project) {
     return (
       <div className="page-container">
         <div className="card-padded">
-          <p>Project not found.</p>
-          <Link to="/" className="btn-secondary mt-3 inline-flex">
-            Back to projects
+          <p className="mb-3">Project not found.</p>
+          <Link to="/" className="btn-secondary">
+            Back to all projects
           </Link>
         </div>
       </div>
     );
   }
 
-  // -----------------------------------------------------------
-  // Render: project details
-  // -----------------------------------------------------------
+  // Main render: project details
   return (
     <div className="page-container">
       {/* Title + phase badge */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
         <h1 className="page-title mb-0">{project.title}</h1>
+
         <span className="badge-pill">
           {project.phase}
         </span>
       </div>
 
-      {/* Meta information card */}
+      {/* Metadata card */}
       <div className="card-padded mb-4">
         <h2 className="section-title">Project details</h2>
 
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
+        <div className="grid gap-4 md:grid-cols-2 text-sm">
           <div className="space-y-1">
             <p>
               <span className="font-medium">Start date:</span>{" "}
@@ -105,6 +109,10 @@ function ProjectDetails() {
             <p>
               <span className="font-medium">End date:</span>{" "}
               {project.end_date || "Not specified"}
+            </p>
+            <p>
+              <span className="font-medium">Created at:</span>{" "}
+              {project.created_at}
             </p>
           </div>
 
@@ -120,8 +128,8 @@ function ProjectDetails() {
               </p>
             )}
             <p>
-              <span className="font-medium">Created at:</span>{" "}
-              {project.created_at}
+              <span className="font-medium">Project ID:</span>{" "}
+              {project.pid}
             </p>
           </div>
         </div>
@@ -133,12 +141,13 @@ function ProjectDetails() {
         <p className="text-sm text-gray-800">
           {project.short_description}
         </p>
-
-        <div className="mt-4">
-          <Link to="/" className="btn-secondary">
-            Back to all projects
+        
+          <Link
+            to="/"
+            className="btn-primary hover:text-white mt-4"
+          >
+            Browse other projects
           </Link>
-        </div>
       </div>
     </div>
   );
