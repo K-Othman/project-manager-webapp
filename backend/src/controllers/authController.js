@@ -17,6 +17,7 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const { pool } = require('../config/db');
 
+
 /**
  * Helper: Generate a signed JWT token for a user.
  */

@@ -34,7 +34,8 @@ const projectValidation = [
   body('title')
     .trim()
     .isLength({ min: 3, max: 150 })
-    .withMessage('Title must be between 3 and 150 characters.'),
+    .withMessage('Title must be between 3 and 150 characters.')
+    .escape(),
 
   body('start_date')
     .isISO8601()
@@ -48,7 +49,8 @@ const projectValidation = [
   body('short_description')
     .trim()
     .isLength({ min: 10, max: 255 })
-    .withMessage('Short description must be between 10 and 255 characters.'),
+    .withMessage('Short description must be between 10 and 255 characters.')
+    .escape(),
 
   body('phase')
     .isIn(['design', 'development', 'testing', 'deployment', 'complete'])
